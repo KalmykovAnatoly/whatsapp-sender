@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.kalmykov.whatsappsender.common.concurrency.IntervalStrategy;
 import ru.kalmykov.whatsappsender.common.concurrency.LoopRunnable;
 import ru.kalmykov.whatsappsender.common.lifecycle.AbstractLifecycle;
+import ru.kalmykov.whatsappsender.repository.client.WhatsappClient;
 
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,31 +18,30 @@ import java.util.concurrent.Executors;
 public class Processor extends AbstractLifecycle {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
 
-    private final WhatsappStarter whatsappStarter;
-    private final Parser parser;
+    private final WhatsappClient whatsappClient;
     private final ExecutorService executorService;
 
     public Processor(
-            WhatsappStarter whatsappStarter,
-            Parser parser
+            WhatsappClient whatsappClient
     ) {
-        this.whatsappStarter = whatsappStarter;
-        this.parser = parser;
+        this.whatsappClient = whatsappClient;
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
     @Override
     public void onStart() throws Exception {
-        whatsappStarter.start();
+        whatsappClient.start();
 
-        WebElement group = parser.getGroup("Собираемся у святыни");
-        if (group!=null){
-            group.click();
+        WebElement groupReference = whatsappClient.findGroupReference();
+        if (groupReference != null) {
+            groupReference.click();
+            LOGGER.debug("ENTERED GROUP");
         }
+
         executorService.submit(new LoopRunnable(
                 IntervalStrategy.createDefaultPerturbated(1000),
                 this::isStopped,
-                () -> this.process(group)
+                this::process
         ));
     }
 
@@ -51,9 +50,8 @@ public class Processor extends AbstractLifecycle {
 
     }
 
-    private void process(@Nullable WebElement element) {
+    private void process() {
         LOGGER.debug("PROCESSING...");
-        LOGGER.debug(element != null ? element.getText() : null);
     }
 
     private boolean isStopped() {

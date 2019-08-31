@@ -15,14 +15,11 @@ repositories {
 
 dependencies {
 //	compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb-reactive'
+	compile group: 'org.apache.commons', name: 'commons-lang3'
 	compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux'
 	compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.0.0-alpha-2'
 
 	runtimeOnly 'com.h2database:h2'
-	testImplementation('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-	}
-	testImplementation 'io.projectreactor:reactor-test'
 }
 
 test {
