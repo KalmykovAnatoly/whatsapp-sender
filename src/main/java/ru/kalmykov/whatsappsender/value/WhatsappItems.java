@@ -5,7 +5,8 @@ import org.openqa.selenium.By;
 public enum WhatsappItems {
 
     PANE_SIDE(By.id("pane-side")),
-    GROUP_REFERENCE(By.xpath("//span[@dir='auto']"));
+    GROUP_REFERENCE(By.xpath("//span[@dir='auto']")),
+    CHAT_INPUT(By.xpath("//div[contains(@class, '_13mgZ')]"));
 
     public final By by;
 

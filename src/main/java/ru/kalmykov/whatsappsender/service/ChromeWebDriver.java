@@ -5,7 +5,6 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -16,20 +15,20 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @ParametersAreNonnullByDefault
-public class WebDriver implements org.openqa.selenium.WebDriver {
+public class ChromeWebDriver implements org.openqa.selenium.WebDriver {
 
     private static final String CHROME_DRIVER = "webdriver.chrome.driver";
 
     private final org.openqa.selenium.WebDriver webDriver;
     private final JavascriptExecutor jse;
 
-    public WebDriver(
+    public ChromeWebDriver(
             @Value("${selenium.driver.path}") String driverPath
     ) throws IOException {
         System.setProperty(CHROME_DRIVER, "C:\\JavaProj\\whatsapp-sender\\src\\main\\resources\\chromedriver.exe");
         this.webDriver = new ChromeDriver();
         this.webDriver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        this.jse = (JavascriptExecutor)this.webDriver;
+        this.jse = (JavascriptExecutor) this.webDriver;
     }
 
     @Override
@@ -97,7 +96,7 @@ public class WebDriver implements org.openqa.selenium.WebDriver {
         return webDriver.manage();
     }
 
-    public void executeScript(String jsScript){
+    public void executeScript(String jsScript) {
         jse.executeScript(jsScript);
     }
 }
