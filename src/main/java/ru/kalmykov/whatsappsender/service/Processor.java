@@ -17,7 +17,7 @@ public class Processor extends AbstractLifecycle {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
 
     //    private final static String groupTitle = "Вов - духовное возвышение";
-    private final static String groupTitle = "ЗАМЕТКИ";
+    private final static String groupTitle = "ЗАМЕТКИs";
 
     private final WhatsappService whatsappService;
     private final ExecutorService executorService;
@@ -49,9 +49,10 @@ public class Processor extends AbstractLifecycle {
     }
 
     private void process() throws InterruptedException {
-        LOGGER.debug("PROCESSING...");
-        String currentGroupTitle = whatsappService.currentGroupTitle();
-        LOGGER.debug("CURRENT GROUP TITLE: "+ currentGroupTitle);
+//        LOGGER.debug("PROCESSING...");
+//        String currentGroupTitle = whatsappService.currentGroupTitle();
+//        LOGGER.debug("CURRENT GROUP TITLE: "+ currentGroupTitle);
+//        whatsappService.scrollUpChatOutput(100);
 //        whatsappService.writeToChat(currentGroupTitle);
     }
 

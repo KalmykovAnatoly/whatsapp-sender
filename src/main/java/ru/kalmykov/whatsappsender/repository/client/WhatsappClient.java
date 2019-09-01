@@ -1,6 +1,5 @@
 package ru.kalmykov.whatsappsender.repository.client;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
@@ -13,9 +12,7 @@ import ru.kalmykov.whatsappsender.value.Xpath;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static ru.kalmykov.whatsappsender.value.Xpath.*;
 
@@ -71,27 +68,8 @@ public class WhatsappClient implements Startable {
     }
 
     @Nullable
-    public WebElement findGroupReference(String groupName) throws InterruptedException {
-        Set<WebElement> allGroupReferences = new HashSet<>();
-        WebElement groupReference;
-        while (true) {
-            List<WebElement> currentGroups = getGroupReferences();
-
-            groupReference = currentGroups
-                    .stream()
-                    .filter(e -> !isStale(e) && groupName.equals(e.getText()))
-                    .findFirst()
-                    .orElse(null);
-
-            if (groupReference != null || allGroupReferences.containsAll(currentGroups)) {
-                break;
-            }
-
-            allGroupReferences.addAll(currentGroups);
-            LOGGER.debug("GROUPS ADDED: " + currentGroups.size());
-            scrollDownPaneSide();
-        }
-        return groupReference;
+    public WebElement findMain() {
+        return safeFinding(MAIN);
     }
 
 
@@ -104,17 +82,17 @@ public class WhatsappClient implements Startable {
         }
     }
 
-    public void scrollUpChatOutput() throws InterruptedException {
-        chromeWebDriver.executeScript("document.getElementsByClassName('_1_keJ')[0].scrollBy({top: -600})");
+    public void scrollUpChatOutput(int number) throws InterruptedException {
+        chromeWebDriver.executeScript("document.getElementsByClassName('_1_keJ')[0].scrollBy({top: -" + number + "})");
         Thread.sleep(100);
     }
 
-    private void scrollDownPaneSide() throws InterruptedException {
-        chromeWebDriver.executeScript("document.getElementById('pane-side').scrollBy({top: 600})");
+    public void scrollDownPaneSide(int number) throws InterruptedException {
+        chromeWebDriver.executeScript("document.getElementById('pane-side').scrollBy({top: " + number + "})");
         Thread.sleep(100);
     }
 
-    private List<WebElement> getGroupReferences() {
+    public List<WebElement> getGroupReferences() {
         return chromeWebDriver.findElements(Xpath.of(GROUP_REFERENCE));
     }
 
@@ -123,7 +101,7 @@ public class WhatsappClient implements Startable {
         try {
             return chromeWebDriver.findElement(Xpath.of(item));
         } catch (Exception e) {
-            LOGGER.error("ELEMENT NOT FOUND", e);
+            LOGGER.error("ELEMENT NOT FOUND: " + item.name(), e);
             return null;
         }
     }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -24,10 +23,10 @@ public class ChromeWebDriver implements org.openqa.selenium.WebDriver {
 
     public ChromeWebDriver(
             @Value("${selenium.driver.path}") String driverPath
-    ) throws IOException {
+    ) {
         System.setProperty(CHROME_DRIVER, "C:\\JavaProj\\whatsapp-sender\\src\\main\\resources\\chromedriver.exe");
         this.webDriver = new ChromeDriver();
-        this.webDriver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        this.webDriver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
         this.jse = (JavascriptExecutor) this.webDriver;
     }
 
