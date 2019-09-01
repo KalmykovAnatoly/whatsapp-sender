@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.kalmykov.whatsappsender.common.lifecycle.Startable;
 import ru.kalmykov.whatsappsender.service.ChromeWebDriver;
+import ru.kalmykov.whatsappsender.value.Xpath;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -16,8 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static ru.kalmykov.whatsappsender.value.WhatsappItems.CHAT_INPUT;
-import static ru.kalmykov.whatsappsender.value.WhatsappItems.GROUP_REFERENCE;
+import static ru.kalmykov.whatsappsender.value.Xpath.*;
 
 @Service
 @ParametersAreNonnullByDefault
@@ -38,12 +38,6 @@ public class WhatsappClient implements Startable {
     @Override
     public void start() throws Exception {
         chromeWebDriver.get(endpoint);
-        WebElement scanMeElement = chromeWebDriver.findElement(By.xpath("//img[@alt='Scan me!']"));
-        while (!isStale(scanMeElement)) {
-            Thread.sleep(2000);
-            LOGGER.debug("WAITING FOR SCAN");
-        }
-        LOGGER.debug("SCANNED");
     }
 
     @Override
@@ -51,8 +45,29 @@ public class WhatsappClient implements Startable {
         chromeWebDriver.close();
     }
 
+    @Nullable
+    public WebElement findScanMe() {
+        return safeFinding(SCAN_ME);
+    }
+
+    @Nullable
     public WebElement findChatInput() {
-        return chromeWebDriver.findElement(CHAT_INPUT.by);
+        return safeFinding(CHAT_INPUT);
+    }
+
+    @Nullable
+    public WebElement findCurrentGroupHeader() {
+        return safeFinding(CURRENT_GROUP_HEADER);
+    }
+
+    @Nullable
+    public WebElement findScrollButton() {
+        return safeFinding(SCROLL_BUTTON);
+    }
+
+    @Nullable
+    public WebElement findSendButton() {
+        return safeFinding(SEND_BUTTON);
     }
 
     @Nullable
@@ -79,8 +94,19 @@ public class WhatsappClient implements Startable {
         return groupReference;
     }
 
-    private List<WebElement> getGroupReferences() {
-        return chromeWebDriver.findElements(GROUP_REFERENCE.by);
+
+    public static boolean isStale(WebElement element) {
+        try {
+            element.isEnabled();
+            return false;
+        } catch (StaleElementReferenceException ignored) {
+            return true;
+        }
+    }
+
+    public void scrollUpChatOutput() throws InterruptedException {
+        chromeWebDriver.executeScript("document.getElementsByClassName('_1_keJ')[0].scrollBy({top: -600})");
+        Thread.sleep(100);
     }
 
     private void scrollDownPaneSide() throws InterruptedException {
@@ -88,12 +114,17 @@ public class WhatsappClient implements Startable {
         Thread.sleep(100);
     }
 
-    private static boolean isStale(WebElement element) {
+    private List<WebElement> getGroupReferences() {
+        return chromeWebDriver.findElements(Xpath.of(GROUP_REFERENCE));
+    }
+
+    @Nullable
+    private WebElement safeFinding(Xpath item) {
         try {
-            element.isEnabled();
-            return false;
-        } catch (StaleElementReferenceException ignored) {
-            return true;
+            return chromeWebDriver.findElement(Xpath.of(item));
+        } catch (Exception e) {
+            LOGGER.error("ELEMENT NOT FOUND", e);
+            return null;
         }
     }
 }

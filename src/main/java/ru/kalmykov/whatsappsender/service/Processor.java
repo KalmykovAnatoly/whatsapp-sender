@@ -16,7 +16,8 @@ import java.util.concurrent.Executors;
 public class Processor extends AbstractLifecycle {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
 
-    private final static String groupName = "Вов - духовное возвышение";
+    //    private final static String groupTitle = "Вов - духовное возвышение";
+    private final static String groupTitle = "ЗАМЕТКИ";
 
     private final WhatsappService whatsappService;
     private final ExecutorService executorService;
@@ -32,9 +33,7 @@ public class Processor extends AbstractLifecycle {
     public void onStart() throws Exception {
         whatsappService.start();
 
-        whatsappService.enterGroup(groupName);
-
-        whatsappService.writeToChat("TEST");
+        whatsappService.enterGroup(groupTitle);
 
         executorService.submit(new LoopRunnable(
                 IntervalStrategy.createDefaultPerturbated(1000),
@@ -49,8 +48,11 @@ public class Processor extends AbstractLifecycle {
         whatsappService.stop();
     }
 
-    private void process() {
+    private void process() throws InterruptedException {
         LOGGER.debug("PROCESSING...");
+        String currentGroupTitle = whatsappService.currentGroupTitle();
+        LOGGER.debug("CURRENT GROUP TITLE: "+ currentGroupTitle);
+//        whatsappService.writeToChat(currentGroupTitle);
     }
 
     private boolean isStopped() {
