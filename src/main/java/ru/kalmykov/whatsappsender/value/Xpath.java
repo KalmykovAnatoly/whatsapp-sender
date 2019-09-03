@@ -8,11 +8,12 @@ public enum Xpath {
     CHAT_OUTPUT("//div[contains(@class, '_1_q7u')]"),
     CURRENT_GROUP_HEADER("//div[contains(@class, '_19vo_')]"),
     GROUP_REFERENCE("//div[contains(@class, 'X7YrQ')]"),
-    PANE_SIDE("pane-side"),
+    ACTIVE_GROUP_REFERENCE("//div[contains(@class, '_2UaNq _3mMX1')]"),
     SCAN_ME("//img[@alt='Scan me!']"),
     SCROLL_BUTTON("//div[contains(@class, '_3KRbU')]"),
     SEND_BUTTON("//span[@data-icon='send']"),
-    MAIN("//div[contains(@id, 'app')]");
+    BODY("//body"),
+    SEARCH_BAR("//button[contains(@class, '_1XCAr')]");
 
     public final String xpath;
 

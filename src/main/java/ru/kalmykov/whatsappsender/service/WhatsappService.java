@@ -48,7 +48,7 @@ public class WhatsappService implements Startable {
     }
 
 
-    boolean enterGroup(String groupTitle) throws InterruptedException {
+    boolean enterGroup(String groupTitle) {
         WebElement groupReference = findGroupReference(groupTitle);
         if (groupReference != null) {
             groupReference.click();
@@ -83,23 +83,37 @@ public class WhatsappService implements Startable {
         whatsappClient.scrollUpChatOutput(number);
     }
 
-    void changeFocus(WebElement element) {
-        element.sendKeys(Keys.TAB);
+    private void moveDown(WebElement webElement) {
+        webElement.sendKeys(Keys.ARROW_DOWN);
     }
 
     @Nullable
-    private WebElement findGroupReference(String groupTitle) throws InterruptedException {
-        Set<WebElement> allGroupReferences = new HashSet<>();
-        WebElement zeroGroupReference =
-                whatsappClient.getGroupReferences()
-                        .stream()
-                        .filter(e -> {
-                            return extractPosition(e) == 0;
-                        })
-                        .findFirst()
-                        .orElse(null);
-        changeFocus(whatsappClient.findMain());
-        return zeroGroupReference;
+    private WebElement findGroupReference(String groupTitle) {
+        WebElement searchBar = whatsappClient.findSearchBar();
+        if (searchBar == null) {
+            throw new NotFoundException("#SEARCH.BAR.NOT.FOUND; Search bar не найден");
+        }
+        searchBar.click();
+        moveDown(searchBar);
+
+        Set<WebElement> set = new HashSet<>();
+        while (true) {
+            WebElement activeGroupReference = whatsappClient.findActiveGroupReference();
+            if (activeGroupReference == null) {
+                throw new NotFoundException("#GROUP.NOT.FOUND; Группа не найдена");
+            }
+            if (set.contains(activeGroupReference)) {
+                return null;
+            } else {
+                String extractedGroupTitle = extractGroupTitle(activeGroupReference);
+                LOGGER.info("EXTRACTED TITLE: " + extractedGroupTitle);
+                if (groupTitle.equals(extractedGroupTitle)) {
+                    return activeGroupReference;
+                }
+                set.add(activeGroupReference);
+            }
+            moveDown(searchBar);
+        }
     }
 
     private static int extractPosition(WebElement webElement) {

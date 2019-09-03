@@ -68,10 +68,14 @@ public class WhatsappClient implements Startable {
     }
 
     @Nullable
-    public WebElement findMain() {
-        return safeFinding(MAIN);
+    public WebElement findSearchBar() {
+        return safeFinding(SEARCH_BAR);
     }
 
+    @Nullable
+    public WebElement findActiveGroupReference() {
+        return safeFinding(ACTIVE_GROUP_REFERENCE);
+    }
 
     public static boolean isStale(WebElement element) {
         try {
