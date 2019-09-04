@@ -1,5 +1,6 @@
 package ru.kalmykov.whatsappsender.service;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class Processor extends AbstractLifecycle {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
 
     //    private final static String groupTitle = "Вов - духовное возвышение";
-    private final static String groupTitle = "ЗАМЕТКИs";
+    private final static String groupTitle = "ЗАМЕТКИ";
 
     private final WhatsappService whatsappService;
     private final ExecutorService executorService;
@@ -34,6 +35,8 @@ public class Processor extends AbstractLifecycle {
         whatsappService.start();
 
         whatsappService.enterGroup(groupTitle);
+
+        Preconditions.checkState(groupTitle.equals(whatsappService.currentGroupTitle()));
 
         executorService.submit(new LoopRunnable(
                 IntervalStrategy.createDefaultPerturbated(1000),
@@ -52,7 +55,7 @@ public class Processor extends AbstractLifecycle {
 //        LOGGER.debug("PROCESSING...");
 //        String currentGroupTitle = whatsappService.currentGroupTitle();
 //        LOGGER.debug("CURRENT GROUP TITLE: "+ currentGroupTitle);
-//        whatsappService.scrollUpChatOutput(100);
+        whatsappService.scrollUpChatOutput(1000);
 //        whatsappService.writeToChat(currentGroupTitle);
     }
 

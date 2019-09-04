@@ -72,11 +72,6 @@ public class WhatsappClient implements Startable {
         return safeFinding(SEARCH_BAR);
     }
 
-    @Nullable
-    public WebElement findActiveGroupReference() {
-        return safeFinding(ACTIVE_GROUP_REFERENCE);
-    }
-
     public static boolean isStale(WebElement element) {
         try {
             element.isEnabled();
@@ -93,7 +88,6 @@ public class WhatsappClient implements Startable {
 
     public void scrollDownPaneSide(int number) throws InterruptedException {
         chromeWebDriver.executeScript("document.getElementById('pane-side').scrollBy({top: " + number + "})");
-        Thread.sleep(100);
     }
 
     public List<WebElement> getGroupReferences() {

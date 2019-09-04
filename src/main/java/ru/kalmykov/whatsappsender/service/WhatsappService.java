@@ -1,19 +1,20 @@
 package ru.kalmykov.whatsappsender.service;
 
-import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.kalmykov.whatsappsender.Exception.NotFoundException;
 import ru.kalmykov.whatsappsender.common.lifecycle.Startable;
+import ru.kalmykov.whatsappsender.entity.GroupReference;
 import ru.kalmykov.whatsappsender.repository.client.WhatsappClient;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static ru.kalmykov.whatsappsender.repository.client.WhatsappClient.isStale;
 
@@ -48,14 +49,13 @@ public class WhatsappService implements Startable {
     }
 
 
-    boolean enterGroup(String groupTitle) {
+    void enterGroup(String groupTitle) throws InterruptedException {
         WebElement groupReference = findGroupReference(groupTitle);
-        if (groupReference != null) {
-            groupReference.click();
-            LOGGER.debug("ENTERED GROUP");
-            return true;
+        if (groupReference == null) {
+            throw new NotFoundException("#GROUP.NOT.FOUND; Группа не найдена");
         }
-        return false;
+        groupReference.click();
+        LOGGER.debug("ENTERED GROUP");
     }
 
     String currentGroupTitle() {
@@ -83,52 +83,31 @@ public class WhatsappService implements Startable {
         whatsappClient.scrollUpChatOutput(number);
     }
 
-    private void moveDown(WebElement webElement) {
-        webElement.sendKeys(Keys.ARROW_DOWN);
-    }
-
     @Nullable
-    private WebElement findGroupReference(String groupTitle) {
-        WebElement searchBar = whatsappClient.findSearchBar();
-        if (searchBar == null) {
-            throw new NotFoundException("#SEARCH.BAR.NOT.FOUND; Search bar не найден");
-        }
-        searchBar.click();
-        moveDown(searchBar);
-
-        Set<WebElement> set = new HashSet<>();
+    public WebElement findGroupReference(String groupTitle) throws InterruptedException {
+        Set<GroupReference> allGroupReferences = new HashSet<>();
+        GroupReference groupReference;
         while (true) {
-            WebElement activeGroupReference = whatsappClient.findActiveGroupReference();
-            if (activeGroupReference == null) {
-                throw new NotFoundException("#GROUP.NOT.FOUND; Группа не найдена");
-            }
-            if (set.contains(activeGroupReference)) {
+            List<GroupReference> currentGroups = whatsappClient.getGroupReferences().stream().map(GroupReference::new).collect(
+                    Collectors.toList());
+            LOGGER.debug(currentGroups.toString());
+
+            if (allGroupReferences.containsAll(currentGroups)) {
+                LOGGER.debug("END OF GROUPS");
                 return null;
-            } else {
-                String extractedGroupTitle = extractGroupTitle(activeGroupReference);
-                LOGGER.info("EXTRACTED TITLE: " + extractedGroupTitle);
-                if (groupTitle.equals(extractedGroupTitle)) {
-                    return activeGroupReference;
-                }
-                set.add(activeGroupReference);
             }
-            moveDown(searchBar);
-        }
-    }
+            groupReference = currentGroups
+                    .stream()
+                    .filter(e-> e.title.equals(groupTitle))
+                    .findFirst()
+                    .orElse(null);
 
-    private static int extractPosition(WebElement webElement) {
-        String style = webElement.getAttribute("style");
-        String translation = StringUtils.substringBetween(style, "translateY(", "px)");
-        if (translation == null) {
-            throw new NotFoundException("#TRANSLATION.NOT.FOUND; Translation не найдено");
-        }
-        return Integer.valueOf(translation) / 72;
-    }
+            if (groupReference != null) {
+                return groupReference.webElement;
+            }
 
-    private static String extractGroupTitle(WebElement webElement) {
-        String[] lines = webElement.getText().split("\\r?\\n");
-        if (lines.length > 0) {
-            return lines[0];
-        } else return "";
+            allGroupReferences.addAll(currentGroups);
+            whatsappClient.scrollDownPaneSide(1500);
+        }
     }
 }
