@@ -76,15 +76,6 @@ public class WhatsappClient implements Startable {
         return safeFinding(LOADING);
     }
 
-    public static boolean isStale(WebElement element) {
-        try {
-            element.isEnabled();
-            return false;
-        } catch (StaleElementReferenceException ignored) {
-            return true;
-        }
-    }
-
     public void scrollUpChatOutput(int number) throws InterruptedException {
         chromeWebDriver.executeScript("document.getElementsByClassName('_1_keJ')[0].scrollBy({top: -" + number + "})");
         Thread.sleep(100);
@@ -100,6 +91,15 @@ public class WhatsappClient implements Startable {
 
     public List<WebElement> getMessages(){
         return chromeWebDriver.findElements(Xpath.of(MESSAGE));
+    }
+
+    public static boolean isStale(WebElement element) {
+        try {
+            element.isEnabled();
+            return false;
+        } catch (StaleElementReferenceException ignored) {
+            return true;
+        }
     }
 
     @Nullable

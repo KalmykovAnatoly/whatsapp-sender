@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.kalmykov.whatsappsender.common.concurrency.IntervalStrategy;
 import ru.kalmykov.whatsappsender.common.concurrency.LoopRunnable;
 import ru.kalmykov.whatsappsender.common.lifecycle.AbstractLifecycle;
+import ru.kalmykov.whatsappsender.entity.Message;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.ExecutorService;
@@ -18,7 +19,7 @@ public class Processor extends AbstractLifecycle {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
 
     //    private final static String groupTitle = "Вов - духовное возвышение";
-    private final static String groupTitle = "ЗАМЕТКИ";
+    private final static String groupTitle = "Интернешнл";
 
     private final WhatsappService whatsappService;
     private final ExecutorService executorService;
@@ -38,6 +39,10 @@ public class Processor extends AbstractLifecycle {
 
         Preconditions.checkState(groupTitle.equals(whatsappService.currentGroupTitle()));
 
+        for (Message message : whatsappService.getMessages()){
+            LOGGER.info(message.author+": "+message.text);
+        }
+
         executorService.submit(new LoopRunnable(
                 IntervalStrategy.createDefaultPerturbated(1000),
                 this::isStopped,
@@ -51,11 +56,11 @@ public class Processor extends AbstractLifecycle {
         whatsappService.stop();
     }
 
-    private void process() throws InterruptedException {
+    private void process() {
 //        LOGGER.debug("PROCESSING...");
 //        String currentGroupTitle = whatsappService.currentGroupTitle();
 //        LOGGER.debug("CURRENT GROUP TITLE: "+ currentGroupTitle);
-        whatsappService.scrollUpChatOutput(1000);
+//        whatsappService.scrollUpChatOutput(1000);
 //        whatsappService.writeToChat(currentGroupTitle);
     }
 

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.kalmykov.whatsappsender.Exception.NotFoundException;
 import ru.kalmykov.whatsappsender.common.lifecycle.Startable;
 import ru.kalmykov.whatsappsender.entity.GroupReference;
+import ru.kalmykov.whatsappsender.entity.Message;
 import ru.kalmykov.whatsappsender.repository.client.WhatsappClient;
 
 import javax.annotation.Nullable;
@@ -49,7 +50,7 @@ public class WhatsappService implements Startable {
     }
 
 
-    void enterGroup(String groupTitle) throws InterruptedException {
+    void enterGroup(String groupTitle) {
         WebElement groupReference = findGroupReference(groupTitle);
         if (groupReference == null) {
             throw new NotFoundException("#GROUP.NOT.FOUND; Группа не найдена");
@@ -83,17 +84,22 @@ public class WhatsappService implements Startable {
         whatsappClient.scrollUpChatOutput(number);
     }
 
-//    public void printMessage(){
-//        whatsappClient.getMessages().stream().
-//    }
+    List<Message> getMessages(){
+        return whatsappClient.getMessages()
+                .stream()
+                .map(Message::new)
+                .collect(Collectors.toList());
+    }
 
     @Nullable
-    public WebElement findGroupReference(String groupTitle) throws InterruptedException {
+    private WebElement findGroupReference(String groupTitle) {
         Set<GroupReference> allGroupReferences = new HashSet<>();
         GroupReference groupReference;
         while (true) {
-            List<GroupReference> currentGroups = whatsappClient.getGroupReferences().stream().map(GroupReference::new).collect(
-                    Collectors.toList());
+            List<GroupReference> currentGroups = whatsappClient.getGroupReferences()
+                    .stream()
+                    .map(GroupReference::new)
+                    .collect(Collectors.toList());
             LOGGER.debug(currentGroups.toString());
 
             if (allGroupReferences.containsAll(currentGroups)) {

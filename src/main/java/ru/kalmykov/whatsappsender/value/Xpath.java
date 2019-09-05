@@ -10,6 +10,7 @@ public enum Xpath {
     GROUP_REFERENCE("//div[contains(@class, 'X7YrQ')]"),
     LOADING("//div[contains(@class, '_2sOZc')]"),
     MESSAGE("//div[contains(@class, 'N6Gq')]"),
+    MESSAGE_DATA("//div[@data-pre-plain-text]"),
     SCAN_ME("//img[@alt='Scan me!']"),
     SCROLL_BUTTON("//div[contains(@class, '_3KRbU')]"),
     SEND_BUTTON("//span[@data-icon='send']"),
