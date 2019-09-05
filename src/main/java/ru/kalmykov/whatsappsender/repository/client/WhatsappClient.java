@@ -72,6 +72,10 @@ public class WhatsappClient implements Startable {
         return safeFinding(SEARCH_BAR);
     }
 
+    public WebElement findLoading() {
+        return safeFinding(LOADING);
+    }
+
     public static boolean isStale(WebElement element) {
         try {
             element.isEnabled();
@@ -86,12 +90,16 @@ public class WhatsappClient implements Startable {
         Thread.sleep(100);
     }
 
-    public void scrollDownPaneSide(int number) throws InterruptedException {
+    public void scrollDownPaneSide(int number) {
         chromeWebDriver.executeScript("document.getElementById('pane-side').scrollBy({top: " + number + "})");
     }
 
     public List<WebElement> getGroupReferences() {
         return chromeWebDriver.findElements(Xpath.of(GROUP_REFERENCE));
+    }
+
+    public List<WebElement> getMessages(){
+        return chromeWebDriver.findElements(Xpath.of(MESSAGE));
     }
 
     @Nullable

@@ -83,6 +83,10 @@ public class WhatsappService implements Startable {
         whatsappClient.scrollUpChatOutput(number);
     }
 
+//    public void printMessage(){
+//        whatsappClient.getMessages().stream().
+//    }
+
     @Nullable
     public WebElement findGroupReference(String groupTitle) throws InterruptedException {
         Set<GroupReference> allGroupReferences = new HashSet<>();

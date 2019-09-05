@@ -4,9 +4,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebElement;
 import ru.kalmykov.whatsappsender.Exception.NotFoundException;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+@ParametersAreNonnullByDefault
 public class GroupReference {
 
-    public final int position;
+    private final int position;
     public final String title;
     public final WebElement webElement;
 

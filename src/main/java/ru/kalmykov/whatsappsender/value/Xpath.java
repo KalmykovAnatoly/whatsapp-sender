@@ -8,6 +8,8 @@ public enum Xpath {
     CHAT_OUTPUT("//div[contains(@class, '_1_q7u')]"),
     CURRENT_GROUP_HEADER("//div[contains(@class, '_19vo_')]"),
     GROUP_REFERENCE("//div[contains(@class, 'X7YrQ')]"),
+    LOADING("//div[contains(@class, '_2sOZc')]"),
+    MESSAGE("//div[contains(@class, 'N6Gq')]"),
     SCAN_ME("//img[@alt='Scan me!']"),
     SCROLL_BUTTON("//div[contains(@class, '_3KRbU')]"),
     SEND_BUTTON("//span[@data-icon='send']"),
