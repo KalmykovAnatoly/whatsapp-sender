@@ -26,7 +26,7 @@ public class Message {
         String data = innerElement.getAttribute("data-pre-plain-text");
         this.dateTime = LocalDateTime.parse(StringUtils.substringBetween(data, "[", "]"), DATE_TIME_FORMATTER);
         this.author = StringUtils.substringBetween(data, "] ", ":");
-        this.text = element.findElement(By.xpath(".//span[@dir='ltr']")).getText();
+        this.text = innerElement.getAttribute("innerHTML");
     }
 
     @Override
