@@ -20,6 +20,7 @@ dependencies {
 	compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.0.0-alpha-2'
 
 	runtimeOnly 'com.h2database:h2'
+	testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
 }
 
 test {
