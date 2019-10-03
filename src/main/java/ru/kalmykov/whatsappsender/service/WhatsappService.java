@@ -25,9 +25,14 @@ public class WhatsappService implements Startable {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhatsappService.class);
 
     private final WhatsappClient whatsappClient;
+    private final MessageParser messageParser;
 
-    public WhatsappService(WhatsappClient whatsappClient) {
+    public WhatsappService(
+            WhatsappClient whatsappClient,
+            MessageParser messageParser
+    ) {
         this.whatsappClient = whatsappClient;
+        this.messageParser = messageParser;
     }
 
     @Override
@@ -84,10 +89,10 @@ public class WhatsappService implements Startable {
         whatsappClient.scrollUpChatOutput(number);
     }
 
-    List<Message> getMessages(){
+    List<Message> getMessages() {
         return whatsappClient.getMessages()
                 .stream()
-                .map(Message::new)
+                .map(messageParser::parseMessage)
                 .collect(Collectors.toList());
     }
 
@@ -108,7 +113,7 @@ public class WhatsappService implements Startable {
             }
             groupReference = currentGroups
                     .stream()
-                    .filter(e-> e.title.equals(groupTitle))
+                    .filter(e -> e.title.equals(groupTitle))
                     .findFirst()
                     .orElse(null);
 

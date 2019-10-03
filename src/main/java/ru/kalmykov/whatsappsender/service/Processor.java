@@ -18,8 +18,7 @@ import java.util.concurrent.Executors;
 public class Processor extends AbstractLifecycle {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
 
-    //    private final static String groupTitle = "Вов - духовное возвышение";
-    private final static String groupTitle = "Интернешнл";
+    private final static String groupTitle = "ЗАМЕТКИ";
 
     private final WhatsappService whatsappService;
     private final ExecutorService executorService;
@@ -39,8 +38,8 @@ public class Processor extends AbstractLifecycle {
 
         Preconditions.checkState(groupTitle.equals(whatsappService.currentGroupTitle()));
 
-        for (Message message : whatsappService.getMessages()){
-            LOGGER.info(message.author+": "+message.text);
+        for (Message message : whatsappService.getMessages()) {
+            LOGGER.info(message.author + ": " + message.text);
         }
 
         executorService.submit(new LoopRunnable(
