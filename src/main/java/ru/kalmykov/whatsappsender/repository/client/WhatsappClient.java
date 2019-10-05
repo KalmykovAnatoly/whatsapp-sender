@@ -33,12 +33,12 @@ public class WhatsappClient implements Startable {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() {
         chromeWebDriver.get(endpoint);
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         chromeWebDriver.close();
     }
 
@@ -89,7 +89,7 @@ public class WhatsappClient implements Startable {
         return chromeWebDriver.findElements(Xpath.of(GROUP_REFERENCE));
     }
 
-    public List<WebElement> getMessages(){
+    public List<WebElement> getMessages() {
         return chromeWebDriver.findElements(Xpath.of(MESSAGE));
     }
 
@@ -107,7 +107,7 @@ public class WhatsappClient implements Startable {
         try {
             return chromeWebDriver.findElement(Xpath.of(item));
         } catch (Exception e) {
-            LOGGER.error("ELEMENT NOT FOUND: " + item.name(), e);
+            LOGGER.error("ELEMENT NOT FOUND: " + item.name());
             return null;
         }
     }

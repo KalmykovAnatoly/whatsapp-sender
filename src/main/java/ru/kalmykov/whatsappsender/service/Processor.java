@@ -12,12 +12,14 @@ import ru.kalmykov.whatsappsender.entity.Message;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @ParametersAreNonnullByDefault
 public class Processor extends AbstractLifecycle {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
 
+    private final static int INTERVAL_SEC = 1;
     private final static String groupTitle = "ЗАМЕТКИ";
 
     private final WhatsappService whatsappService;
@@ -43,14 +45,14 @@ public class Processor extends AbstractLifecycle {
         }
 
         executorService.submit(new LoopRunnable(
-                IntervalStrategy.createDefaultPerturbated(1000),
+                IntervalStrategy.createDefaultPerturbated(TimeUnit.SECONDS.toMillis(INTERVAL_SEC)),
                 this::isStopped,
                 this::process
         ));
     }
 
     @Override
-    public void onStop() throws Exception {
+    public void onStop() {
         executorService.shutdown();
         whatsappService.stop();
     }

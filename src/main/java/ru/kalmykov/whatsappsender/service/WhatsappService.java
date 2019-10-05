@@ -40,7 +40,8 @@ public class WhatsappService implements Startable {
         whatsappClient.start();
         WebElement scanMe = whatsappClient.findScanMe();
         if (scanMe == null) {
-            throw new NotFoundException("#SCAN.ME.NOT.FOUND; Scan me не найдена");
+            LOGGER.warn("#SCAN.ME.NOT.FOUND; Scan me не найдена");
+            return;
         }
         while (!isStale(scanMe)) {
             Thread.sleep(2000);
@@ -50,7 +51,7 @@ public class WhatsappService implements Startable {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         whatsappClient.stop();
     }
 

@@ -2,8 +2,11 @@ package ru.kalmykov.whatsappsender.service;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.html5.SessionStorage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,18 +17,20 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @ParametersAreNonnullByDefault
-public class ChromeWebDriver implements org.openqa.selenium.WebDriver {
+public class ChromeWebDriver implements WebDriver {
 
     private static final String CHROME_DRIVER = "webdriver.chrome.driver";
 
-    private final org.openqa.selenium.WebDriver webDriver;
+    private final WebDriver webDriver;
     private final JavascriptExecutor jse;
 
     public ChromeWebDriver(
             @Value("${selenium.driver.path}") String driverPath
     ) {
         System.setProperty(CHROME_DRIVER, "C:\\JavaProj\\whatsapp-sender\\src\\main\\resources\\chromedriver.exe");
-        this.webDriver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--user-data-dir=C:\\JavaProj\\whatsapp-sender\\src\\main\\resources");
+        this.webDriver = new ChromeDriver(options);
         this.webDriver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
         this.jse = (JavascriptExecutor) this.webDriver;
     }
@@ -93,6 +98,10 @@ public class ChromeWebDriver implements org.openqa.selenium.WebDriver {
     @Override
     public Options manage() {
         return webDriver.manage();
+    }
+
+    public SessionStorage getSessionStorage() {
+        return ((ChromeDriver) this.webDriver).getSessionStorage();
     }
 
     public void executeScript(String jsScript) {

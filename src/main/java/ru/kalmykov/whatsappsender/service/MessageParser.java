@@ -21,16 +21,19 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.NoSuchElementException;
 
 @Component
 @ParametersAreNonnullByDefault
 public class MessageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageParser.class);
 
-    private static final QName SRC_ATTRIBUTE = QName.valueOf("src");
-    private static final DateTimeFormatter DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("HH:mm, dd.MM.uuuu", Locale.getDefault());
+    private static final QName SRC = QName.valueOf("src");
+    private static final QName CLASS = QName.valueOf("class");
+    private static final QName HREF = QName.valueOf("href");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
+            "HH:mm, dd.MM.uuuu",
+            Locale.getDefault()
+    );
 
     public Message parseMessage(WebElement element) {
         WebElement innerElement = element.findElement(By.xpath(".//div[@data-pre-plain-text]"));
@@ -41,7 +44,7 @@ public class MessageParser {
         String text;
         try {
             text = decompose(innerElement.getAttribute("innerHTML"));
-        } catch (XMLStreamException | IOException e) {
+        } catch (IOException e) {
             LOGGER.warn("MESSAGE CAN'T BE PARSED FOR AUTHOR: {}, DATE_TIME: {}", author, dateTime);
             text = "";
         }
@@ -52,7 +55,9 @@ public class MessageParser {
         );
     }
 
-    private static String decompose(String composedText) throws XMLStreamException, IOException {
+    private static String decompose(String composedText) throws IOException {
+        composedText = composedText.replaceAll("</.*?>", "") + "<>";
+        LOGGER.info("TRYING TO DECOMPOSE: " + composedText);
         byte[] byteArray = composedText.getBytes(StandardCharsets.UTF_8);
 
         StringBuilder builder = new StringBuilder();
@@ -61,20 +66,20 @@ public class MessageParser {
             XMLEventReader reader = inputFactory.createXMLEventReader(inputStream);
 
             while (reader.hasNext()) {
-                XMLEvent event = (XMLEvent) reader.next();
+                XMLEvent event = reader.nextEvent();
                 if (event.isCharacters()) {
                     builder.append(event.asCharacters());
                     builder.append(" ");
                 }
                 if (event.isStartElement()) {
-                    Attribute attribute = event.asStartElement().getAttributeByName(SRC_ATTRIBUTE);
-                    if (attribute != null) {
-                        builder.append(attribute.getValue());
+                    Attribute src = event.asStartElement().getAttributeByName(SRC);
+                    if (src != null) {
+                        builder.append(src.getValue());
                         builder.append(" ");
                     }
                 }
             }
-        } catch (NoSuchElementException ignored) {
+        } catch (XMLStreamException ignored) {
 //            innerHtml crops down closing tags, ok
         }
         return builder.toString();
