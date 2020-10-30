@@ -6,7 +6,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.html5.LocalStorage;
 import org.openqa.selenium.html5.SessionStorage;
+import org.openqa.selenium.html5.WebStorage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -25,12 +27,10 @@ public class ChromeWebDriver implements WebDriver {
     private final JavascriptExecutor jse;
 
     public ChromeWebDriver(
-            @Value("${selenium.driver.path}") String driverPath
+            @Value("${chrome-web-driver.driver-path}") String driverPath
     ) {
-        System.setProperty(CHROME_DRIVER, "C:\\JavaProj\\whatsapp-sender\\src\\main\\resources\\chromedriver.exe");
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--user-data-dir=C:\\JavaProj\\whatsapp-sender\\src\\main\\resources");
-        this.webDriver = new ChromeDriver(options);
+        System.setProperty(CHROME_DRIVER, driverPath);
+        this.webDriver = new ChromeDriver(new ChromeOptions());
         this.webDriver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
         this.jse = (JavascriptExecutor) this.webDriver;
     }
@@ -98,6 +98,10 @@ public class ChromeWebDriver implements WebDriver {
     @Override
     public Options manage() {
         return webDriver.manage();
+    }
+
+    public LocalStorage getLocalStorage() {
+        return ((WebStorage) this.webDriver).getLocalStorage();
     }
 
     public SessionStorage getSessionStorage() {

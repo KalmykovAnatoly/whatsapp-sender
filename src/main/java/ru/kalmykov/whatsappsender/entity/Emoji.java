@@ -3,7 +3,6 @@ package ru.kalmykov.whatsappsender.entity;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.concurrent.Immutable;
 
-@Immutable
 @ParametersAreNonnullByDefault
 public class Emoji {
 

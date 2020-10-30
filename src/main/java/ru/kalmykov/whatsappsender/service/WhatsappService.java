@@ -4,10 +4,9 @@ import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.kalmykov.whatsappsender.Exception.NotFoundException;
-import ru.kalmykov.whatsappsender.common.lifecycle.Startable;
 import ru.kalmykov.whatsappsender.entity.GroupReference;
 import ru.kalmykov.whatsappsender.entity.Message;
+import ru.kalmykov.whatsappsender.exception.NotFoundException;
 import ru.kalmykov.whatsappsender.repository.client.WhatsappClient;
 
 import javax.annotation.Nullable;
@@ -15,13 +14,12 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static ru.kalmykov.whatsappsender.repository.client.WhatsappClient.isStale;
 
 @Service
 @ParametersAreNonnullByDefault
-public class WhatsappService implements Startable {
+public class WhatsappService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhatsappService.class);
 
     private final WhatsappClient whatsappClient;
@@ -35,37 +33,20 @@ public class WhatsappService implements Startable {
         this.messageParser = messageParser;
     }
 
-    @Override
-    public void start() throws Exception {
-        whatsappClient.start();
-        WebElement scanMe = whatsappClient.findScanMe();
-        if (scanMe == null) {
-            LOGGER.warn("#SCAN.ME.NOT.FOUND; Scan me не найдена");
-            return;
-        }
-        while (!isStale(scanMe)) {
-            Thread.sleep(2000);
-            LOGGER.debug("WAITING FOR SCAN");
-        }
-        LOGGER.debug("SCANNED");
+    public void enterWhatsapp() {
+        whatsappClient.enterWhatsapp();
     }
 
-    @Override
-    public void stop() {
-        whatsappClient.stop();
-    }
-
-
-    void enterGroup(String groupTitle) {
-        WebElement groupReference = findGroupReference(groupTitle);
+    void enterGroup(Pattern groupTitlePattern) {
+        WebElement groupReference = findGroupReference(groupTitlePattern);
         if (groupReference == null) {
-            throw new NotFoundException("#GROUP.NOT.FOUND; Группа не найдена");
+            throw new NotFoundException("#group.not.found; Группа не найдена");
         }
         groupReference.click();
         LOGGER.debug("ENTERED GROUP");
     }
 
-    String currentGroupTitle() {
+    public String currentGroupTitle() {
         WebElement webElement = whatsappClient.findCurrentGroupHeader();
         if (webElement == null) {
             throw new NotFoundException("#GROUP.NOT.FOUND; Группа не найдена");
@@ -76,17 +57,19 @@ public class WhatsappService implements Startable {
     void writeToChat(String text) {
         WebElement chatInput = whatsappClient.findChatInput();
         if (chatInput == null) {
-            throw new NotFoundException("#CHAT.INPUT.NOT.FOUND; Chat input не найден");
+            LOGGER.warn("Chat input not found");
+            return;
         }
         chatInput.sendKeys(text);
         WebElement sendButton = whatsappClient.findSendButton();
         if (sendButton == null) {
-            throw new NotFoundException("#SEND.BUTTON.NOT.FOUND; Send button не найдена");
+            LOGGER.warn("Send button not found");
+            return;
         }
         sendButton.click();
     }
 
-    void scrollUpChatOutput(int number) throws InterruptedException {
+    void scrollUpChatOutput(int number) {
         whatsappClient.scrollUpChatOutput(number);
     }
 
@@ -98,7 +81,7 @@ public class WhatsappService implements Startable {
     }
 
     @Nullable
-    private WebElement findGroupReference(String groupTitle) {
+    private WebElement findGroupReference(Pattern groupTitlePattern) {
         Set<GroupReference> allGroupReferences = new HashSet<>();
         GroupReference groupReference;
         while (true) {
@@ -106,7 +89,7 @@ public class WhatsappService implements Startable {
                     .stream()
                     .map(GroupReference::new)
                     .collect(Collectors.toList());
-            LOGGER.debug(currentGroups.toString());
+            LOGGER.debug("Current groups. size: {}, groups: {}", currentGroups.size(), currentGroups);
 
             if (allGroupReferences.containsAll(currentGroups)) {
                 LOGGER.debug("END OF GROUPS");
@@ -114,7 +97,7 @@ public class WhatsappService implements Startable {
             }
             groupReference = currentGroups
                     .stream()
-                    .filter(e -> e.title.equals(groupTitle))
+                    .filter(e -> groupTitlePattern.matcher(e.title).find())
                     .findFirst()
                     .orElse(null);
 

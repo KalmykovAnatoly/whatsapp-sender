@@ -2,7 +2,7 @@ package ru.kalmykov.whatsappsender.entity;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebElement;
-import ru.kalmykov.whatsappsender.Exception.NotFoundException;
+import ru.kalmykov.whatsappsender.exception.NotFoundException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.concurrent.Immutable;

@@ -1,71 +1,79 @@
 package ru.kalmykov.whatsappsender.service;
 
-import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.kalmykov.whatsappsender.common.concurrency.IntervalStrategy;
-import ru.kalmykov.whatsappsender.common.concurrency.LoopRunnable;
-import ru.kalmykov.whatsappsender.common.lifecycle.AbstractLifecycle;
 import ru.kalmykov.whatsappsender.entity.Message;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.concurrent.ExecutorService;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @ParametersAreNonnullByDefault
-public class Processor extends AbstractLifecycle {
+public class Processor {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
 
-    private final static int INTERVAL_SEC = 1;
-    private final static String groupTitle = "ЗАМЕТКИ";
-
     private final WhatsappService whatsappService;
-    private final ExecutorService executorService;
+    private final ScheduledExecutorService scheduler;
+    private final long processingInterval;
+    private final AtomicBoolean debug = new AtomicBoolean(false);
+    private final Set<Message> messages = new LinkedHashSet<>();
+    private final Pattern groupNamePattern;
+
 
     public Processor(
-            WhatsappService whatsappService
+            WhatsappService whatsappService,
+            @Value("${processor.processing-interval}") long processingInterval,
+            @Value("${settings.group-name-pattern}") String groupNamePattern
     ) {
         this.whatsappService = whatsappService;
-        this.executorService = Executors.newSingleThreadExecutor();
+        this.processingInterval = processingInterval;
+        this.groupNamePattern = Pattern.compile(groupNamePattern);
+        this.scheduler = Executors.newScheduledThreadPool(1);
+        this.start();
     }
 
-    @Override
-    public void onStart() throws Exception {
-        whatsappService.start();
+    private void start() {
+        whatsappService.enterWhatsapp();
 
-        whatsappService.enterGroup(groupTitle);
+        whatsappService.enterGroup(this.groupNamePattern);
 
-        Preconditions.checkState(groupTitle.equals(whatsappService.currentGroupTitle()));
+        String currentGroupTitle = whatsappService.currentGroupTitle();
+        LOGGER.debug("Current group title: {}", currentGroupTitle);
 
-        for (Message message : whatsappService.getMessages()) {
-            LOGGER.info(message.author + ": " + message.text);
-        }
+        messages.addAll(new LinkedHashSet<>(whatsappService.getMessages()));
 
-        executorService.submit(new LoopRunnable(
-                IntervalStrategy.createDefaultPerturbated(TimeUnit.SECONDS.toMillis(INTERVAL_SEC)),
-                this::isStopped,
-                this::process
-        ));
-    }
-
-    @Override
-    public void onStop() {
-        executorService.shutdown();
-        whatsappService.stop();
+        scheduler.scheduleWithFixedDelay(this::process, 0, processingInterval, TimeUnit.MILLISECONDS);
     }
 
     private void process() {
-//        LOGGER.debug("PROCESSING...");
-//        String currentGroupTitle = whatsappService.currentGroupTitle();
-//        LOGGER.debug("CURRENT GROUP TITLE: "+ currentGroupTitle);
-//        whatsappService.scrollUpChatOutput(1000);
-//        whatsappService.writeToChat(currentGroupTitle);
+        LOGGER.debug("PROCESSING...");
+        List<Message> current = whatsappService.getMessages();
+        Set<Message> currentSet = current.stream()
+                .filter(e -> !messages.contains(e))
+                .peek(this::action)
+                .collect(Collectors.toSet());
+        messages.addAll(currentSet);
+        if (debug.get()) {
+            whatsappService.writeToChat("TEST");
+        }
     }
 
-    private boolean isStopped() {
-        return executorService.isShutdown();
+    private void action(Message message) {
+        LOGGER.debug("New message: {}", message);
+        if ("Я".equals(message.author) && "/debug".equals(message.text)) {
+            LOGGER.debug("/debug received. current: {}", debug.get());
+            debug.set(!debug.get());
+            whatsappService.writeToChat("debug " + (debug.get() ? "on" : "off"));
+        }
     }
 }

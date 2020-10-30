@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: whatsapp-sender
+
+logging:
+  level:
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    ru.kalmykov.whatsappsender: DEBUG
+
+server:
+  port: 31300
+
+whatsapp-client:
+  endpoint: https://web.whatsapp.com
+  waBrowserId: ENC(xHxQlDB2PLxmMaRUVtyk05AOSn14gdUVEOHIyyzryxvF22zXNRQjJJu/LWJJF4uhQSBSAcRXAY0OlNPsdKGe/w==)
+  waToken1: ENC(0IyXfvBss7BJVJvqi1fUvOxOh4c222Pa5tc6mfuuChlfcuHnm6VvISb0gVaLOU0FW6RFA5vM0IZfLWx1yGsplgAa3HFZvYJI2DBTl+zDFg0=)
+  waToken2: ENC(NkflIyZvIoWvUCcCSVv+mVXIoJmREmTwHxZI3oLv9wCEqG/vWM/W4fOr/2MHijoOqRQIyVaBx8W2lmvYUtdXd46pGzTxh7vDx/DNSXNl2L6aynFnjowNqsVAytAMSEl/Ns2ZvNkUM2Qv/nEG+7hskC8aGCG0k0JOQX6vCbFmm0g=)
+  waSecretBundle: ENC(erna3wyJYBO5AC1RWhYP8lhcje8SCdy0/YdcwdI+dU1Sk6iABe1xxL2MfqoY0qKYsuqGZ+GmKrp79UfKOkLE7qwrTOC+cX+ek7JV8oaGs2aAU8Y/wlrRYUgkwOaSoxiEMTjp/t7jSR/ynTVFE5bZKnH91P7gbu7gc4vJnxaK9ZzcKx1/iwlip1bMt8Aiyt4cQgMhH03Dlchrg6aDzxLrGvHPfvV2S9R1/rpsawu2ByipbmE9w8evwrWxxr3+b6vhlJYrJlz3PfhI9lRhr26frA==)
+
+processor:
+  processing-interval: 5000
+
+chrome-web-driver:
+  driver-path: C:\JavaProj\whatsapp-sender\src\main\resources\chromedriver_86.exe
+
+settings:
+  group-name-pattern: Я
+#  group-name-pattern: \\d{2}:\\d{2}

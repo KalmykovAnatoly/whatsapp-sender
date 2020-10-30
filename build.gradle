@@ -1,7 +1,7 @@
 plugins {
-	id 'org.springframework.boot' version '2.2.0.M5'
-	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-	id 'java'
+    id 'org.springframework.boot' version '2.2.0.M5'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
 }
 
 group = 'ru.kalmykov'
@@ -9,21 +9,25 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
 repositories {
-	mavenCentral()
-	maven { url 'https://repo.spring.io/milestone' }
+    mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
 }
 
 dependencies {
 //	compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb-reactive'
-	compile group: 'org.apache.commons', name: 'commons-lang3'
-	compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux'
-	compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.0.0-alpha-2'
-	compile group: 'javax.xml.stream', name: 'stax-api', version: '1.0-2'
+    compile group: 'com.github.ulisesbocchio', name: 'jasypt-spring-boot-starter', version: '3.0.3'
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.66'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
+    compile group: 'org.springframework', name: 'spring-aop'
+    compile group: 'org.apache.commons', name: 'commons-lang3'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux'
+    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.0.0-alpha-2'
+    compile group: 'javax.xml.stream', name: 'stax-api', version: '1.0-2'
 
-	runtimeOnly 'com.h2database:h2'
-	testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+    runtimeOnly 'com.h2database:h2'
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
