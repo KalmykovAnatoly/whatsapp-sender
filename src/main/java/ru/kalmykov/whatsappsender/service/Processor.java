@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.kalmykov.whatsappsender.entity.Message;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,18 +29,21 @@ public class Processor {
     private final ScheduledExecutorService scheduler;
     private final long processingInterval;
     private final AtomicBoolean debug = new AtomicBoolean(false);
+    private final AtomicBoolean arthurMode = new AtomicBoolean(false);
     private final Set<Message> messages = new LinkedHashSet<>();
     private final Pattern groupNamePattern;
-
+    private final Pattern debugGroupNamePattern;
 
     public Processor(
             WhatsappService whatsappService,
             @Value("${processor.processing-interval}") long processingInterval,
-            @Value("${settings.group-name-pattern}") String groupNamePattern
+            @Value("${settings.group-name-pattern}") String groupNamePattern,
+            @Value("${settings.debug-group-name-pattern}") String debugGroupNamePattern
     ) {
         this.whatsappService = whatsappService;
         this.processingInterval = processingInterval;
         this.groupNamePattern = Pattern.compile(groupNamePattern);
+        this.debugGroupNamePattern = Pattern.compile(debugGroupNamePattern);
         this.scheduler = Executors.newScheduledThreadPool(1);
         this.start();
     }
@@ -56,24 +62,45 @@ public class Processor {
     }
 
     private void process() {
-        LOGGER.debug("PROCESSING...");
         List<Message> current = whatsappService.getMessages();
         Set<Message> currentSet = current.stream()
-                .filter(e -> !messages.contains(e))
+                .filter(message -> {
+                    if (messages.contains(message)) {
+                        return false;
+                    } else {
+                        LOGGER.trace("New message: {}", message);
+                        return true;
+                    }
+                })
                 .peek(this::action)
                 .collect(Collectors.toSet());
         messages.addAll(currentSet);
-        if (debug.get()) {
-            whatsappService.writeToChat("TEST");
-        }
     }
 
-    private void action(Message message) {
-        LOGGER.debug("New message: {}", message);
-        if ("Я".equals(message.author) && "/debug".equals(message.text)) {
-            LOGGER.debug("/debug received. current: {}", debug.get());
-            debug.set(!debug.get());
-            whatsappService.writeToChat("debug " + (debug.get() ? "on" : "off"));
+    private void action(@Nullable Message message) {
+
+        if (message != null && "Я".equalsIgnoreCase(message.author) && message.text != null) {
+            switch (message.text) {
+                case "/debug":
+                    LOGGER.debug("/debug received. current: {}", debug.get());
+                    debug.set(!debug.get());
+                    whatsappService.writeToChat("debug: " + (debug.get() ? "on" : "off"));
+                    break;
+                case "/time":
+                    if (debug.get()) {
+                        whatsappService.writeToChat("time: " + LocalDateTime.now());
+                    }
+                    break;
+                case "/arthur_mode":
+                    arthurMode.set(!arthurMode.get());
+                    whatsappService.writeToChat("arthur_mode: " + (arthurMode.get() ? "on" : "off"));
+                    break;
+                default:
+                    if (arthurMode.get()) {
+                        Arrays.stream(message.text.split("\\s+")).forEach(whatsappService::writeToChat);
+                    }
+            }
+
         }
     }
 }

@@ -10,8 +10,7 @@ public enum Xpath {
     CURRENT_GROUP_HEADER("//*[@*='DP7CM']"),
     GROUP_REFERENCE("//div[contains(@class, '_210SC')]"),
     LOADING("//div[contains(@class, '_2sOZc')]"),
-    MESSAGE("//*[@*='_3sKvP wQZ0F']"),
-    MESSAGE_DATA("//div[@data-pre-plain-text]"),
+    MESSAGE("//*[@data-id]"),
     SCROLL_BUTTON("//div[contains(@class, '_3KRbU')]"),
     SEND_BUTTON("//span[@data-icon='send']"),
     SEARCH_BAR("//button[contains(@class, '_1XCAr')]");

@@ -6,6 +6,8 @@ logging:
   level:
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
     ru.kalmykov.whatsappsender: DEBUG
+    ru.kalmykov.whatsappsender.utils: OFF
+    ru.kalmykov.whatsappsender.service: TRACE
 
 server:
   port: 31300
@@ -18,11 +20,11 @@ whatsapp-client:
   waSecretBundle: ENC(erna3wyJYBO5AC1RWhYP8lhcje8SCdy0/YdcwdI+dU1Sk6iABe1xxL2MfqoY0qKYsuqGZ+GmKrp79UfKOkLE7qwrTOC+cX+ek7JV8oaGs2aAU8Y/wlrRYUgkwOaSoxiEMTjp/t7jSR/ynTVFE5bZKnH91P7gbu7gc4vJnxaK9ZzcKx1/iwlip1bMt8Aiyt4cQgMhH03Dlchrg6aDzxLrGvHPfvV2S9R1/rpsawu2ByipbmE9w8evwrWxxr3+b6vhlJYrJlz3PfhI9lRhr26frA==)
 
 processor:
-  processing-interval: 5000
+  processing-interval: 200
 
 chrome-web-driver:
   driver-path: C:\JavaProj\whatsapp-sender\src\main\resources\chromedriver_86.exe
 
 settings:
-  group-name-pattern: Я
-#  group-name-pattern: \\d{2}:\\d{2}
+  group-name-pattern: ^(?!.*Я|.*Артур).*$
+  debug-group-name-pattern: Я
